@@ -1,0 +1,4 @@
+-   use React with typescript
+-   generate as less code as possible
+-   follow official Obsidian plugin development guide https://docs.obsidian.md/Plugins/Getting+started/Build+a+plugin
+-   follow KISS and DRY principle

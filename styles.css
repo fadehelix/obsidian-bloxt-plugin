@@ -6,3 +6,122 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+/* Bloxt View Container */
+.bloxt-view-container {
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* Bloxt Header */
+.bloxt-header {
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    display: flex;
+    justify-content: flex-end;
+    background: var(--background-secondary);
+}
+
+.bloxt-header button {
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+/* Bloxt Editor */
+.bloxt-editor {
+    min-height: 100%;
+}
+
+/* Draggable Blocks */
+.bloxt-block {
+    margin: 8px 0;
+    padding: 12px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background: var(--background-primary);
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.bloxt-block:hover {
+    border-color: var(--interactive-accent);
+    background: var(--background-primary-alt);
+}
+
+.bloxt-block[data-dragging="true"] {
+    opacity: 0.5;
+    transform: rotate(2deg);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+/* Block Types */
+.bloxt-block-header {
+    border-left: 4px solid var(--text-accent);
+}
+
+.bloxt-block-paragraph {
+    border-left: 4px solid var(--text-muted);
+}
+
+/* Headers */
+.bloxt-header {
+    margin: 0;
+    color: var(--text-normal);
+    font-family: var(--font-interface);
+}
+
+/* Paragraphs */
+.bloxt-paragraph {
+    color: var(--text-normal);
+    line-height: 1.6;
+}
+
+.bloxt-paragraph p {
+    margin: 0 0 8px 0;
+}
+
+.bloxt-paragraph p:last-child {
+    margin-bottom: 0;
+}
+
+/* No File Message */
+.bloxt-no-file {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* No Blocks Message */
+.bloxt-no-blocks {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    color: var(--text-muted);
+    font-style: italic;
+    border: 2px dashed var(--background-modifier-border);
+    border-radius: 8px;
+    margin: 20px;
+}
+
+/* Drag Handle Visual Indicator */
+.bloxt-block::before {
+    content: "⋮⋮";
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-faint);
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.bloxt-block:hover::before {
+    opacity: 1;
+}
