@@ -125,3 +125,88 @@ If your plugin does not need CSS, delete this file.
 .bloxt-block:hover::before {
     opacity: 1;
 }
+/* Nested Blocks Styling */
+.bloxt-nested-container {
+	margin: 0;
+}
+
+.bloxt-nested-children {
+	margin-left: 20px;
+	border-left: 2px solid var(--background-modifier-border);
+	padding-left: 15px;
+	margin-top: 8px;
+}
+
+.bloxt-nested-block {
+	margin: 4px 0;
+	padding: 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary-alt);
+}
+
+/* Non-draggable Blocks */
+.bloxt-block-non-draggable {
+	opacity: 0.7;
+	border-style: dashed !important;
+	cursor: default !important;
+}
+
+.bloxt-block-non-draggable:hover {
+	border-color: var(--text-muted) !important;
+	background: var(--background-primary) !important;
+}
+
+.bloxt-non-draggable {
+	opacity: 0.7;
+	border: 1px dashed var(--text-muted);
+	border-radius: 4px;
+	padding: 8px;
+	margin: 4px 0;
+	background: var(--background-secondary-alt);
+}
+
+.bloxt-non-draggable::before {
+	content: "🔒 ";
+	color: var(--text-muted);
+	font-size: 10px;
+}
+
+/* Enhanced Header Styling for Nested View */
+.bloxt-nested-container .bloxt-header {
+	margin-bottom: 0;
+	padding-bottom: 4px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+/* Settings Indicators */
+.bloxt-settings-info {
+	font-size: 11px;
+	color: var(--text-muted);
+	padding: 8px;
+	background: var(--background-secondary);
+	border-radius: 4px;
+	margin-bottom: 12px;
+}
+
+/* Nested Display Blocks */
+.bloxt-nested-display {
+	border-left: 3px solid var(--interactive-accent);
+	background: var(--background-secondary-alt);
+	position: relative;
+}
+
+.bloxt-nested-display::before {
+	content: "";
+	position: absolute;
+	left: -3px;
+	top: 0;
+	bottom: 0;
+	width: 3px;
+	background: linear-gradient(to bottom, var(--interactive-accent), transparent);
+	opacity: 0.6;
+}
+
+.bloxt-display-block {
+	transition: margin-left 0.2s ease, opacity 0.2s ease;
+}

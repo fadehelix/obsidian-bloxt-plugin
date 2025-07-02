@@ -1,7 +1,10 @@
-import { MarkdownBlock } from "../types";
+import { MarkdownBlock, BloxtPluginSettings } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
-export function parseMarkdownBlocks(content: string): MarkdownBlock[] {
+export function parseMarkdownBlocks(
+	content: string,
+	settings?: BloxtPluginSettings
+): MarkdownBlock[] {
 	const lines = content.split("\n");
 	const blocks: MarkdownBlock[] = [];
 	let currentBlock: MarkdownBlock | null = null;
@@ -16,6 +19,11 @@ export function parseMarkdownBlocks(content: string): MarkdownBlock[] {
 				break;
 			}
 		}
+	}
+
+	// Skip frontmatter if excluded in settings
+	if (settings?.excludeFromDragging.frontmatter !== false) {
+		// Frontmatter is excluded by default
 	}
 
 	// Process lines starting after frontmatter

@@ -15,22 +15,32 @@ export const DraggableBlock = ({ block, children }: DraggableBlockProps) => {
 		transform,
 		transition,
 		isDragging,
-	} = useSortable({ id: block.id });
+	} = useSortable({
+		id: block.id,
+		disabled: block.isDraggable === false,
+	});
 
 	const style = {
 		transform: CSS.Transform.toString(transform),
 		transition,
 		opacity: isDragging ? 0.5 : 1,
-		cursor: isDragging ? "grabbing" : "grab",
+		cursor:
+			block.isDraggable === false
+				? "default"
+				: isDragging
+				? "grabbing"
+				: "grab",
 	};
 
 	return (
 		<div
 			ref={setNodeRef}
 			style={style}
-			{...attributes}
-			{...listeners}
-			className={`bloxt-block bloxt-block-${block.type}`}
+			{...(block.isDraggable !== false ? attributes : {})}
+			{...(block.isDraggable !== false ? listeners : {})}
+			className={`bloxt-block bloxt-block-${block.type} ${
+				block.isDraggable === false ? "bloxt-block-non-draggable" : ""
+			}`}
 			data-dragging={isDragging}
 		>
 			{children}

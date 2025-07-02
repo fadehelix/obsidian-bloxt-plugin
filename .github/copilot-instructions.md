@@ -2,3 +2,5 @@
 -   generate as less code as possible
 -   follow official Obsidian plugin development guide https://docs.obsidian.md/Plugins/Getting+started/Build+a+plugin
 -   follow KISS and DRY principle
+- do not create test markdown files
+- write as declarative code as possible. Do not hesitate to use libraries like lodash to make the code more readable.

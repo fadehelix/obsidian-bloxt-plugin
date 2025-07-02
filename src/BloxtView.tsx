@@ -122,6 +122,7 @@ export class BloxtView extends ItemView {
 				key: `bloxt-editor-${this.refreshCounter}`, // Force re-mount on refresh
 				content,
 				onContentChange: handleContentChange,
+				settings: this.plugin.settings, // Pass settings to BlockEditor
 			})
 		);
 	}

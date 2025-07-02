@@ -14,23 +14,50 @@ import {
 	sortableKeyboardCoordinates,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { MarkdownBlock } from "../types";
+import { MarkdownBlock, BloxtPluginSettings } from "../types";
 import { DraggableBlock } from "./DraggableBlock";
 import {
 	parseMarkdownBlocks,
 	blocksToMarkdown,
 } from "../utils/markdown-parser";
+import {
+	createNestedBlocks,
+	flattenNestedBlocks,
+} from "../utils/nested-blocks";
 import { DEBOUNCE_DELAYS } from "../utils/debounce";
 
 interface BlockEditorProps {
 	content: string;
 	onContentChange: (newContent: string) => void;
+	settings: BloxtPluginSettings;
 }
 
-export const BlockEditor = ({ content, onContentChange }: BlockEditorProps) => {
+export const BlockEditor = ({
+	content,
+	onContentChange,
+	settings,
+}: BlockEditorProps) => {
 	const [blocks, setBlocks] = useState<MarkdownBlock[]>([]);
 	const [lastContent, setLastContent] = useState<string>("");
 	const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+	// Default settings fallback
+	const defaultSettings: BloxtPluginSettings = {
+		enabled: true,
+		excludeFromDragging: {
+			h1: true,
+			h2: false,
+			h3: false,
+			h4: false,
+			h5: false,
+			h6: false,
+			frontmatter: true,
+			paragraphs: false,
+		},
+		enableNestedBlocks: true,
+	};
+
+	const currentSettings = settings || defaultSettings;
 
 	const sensors = useSensors(
 		useSensor(PointerSensor, {
@@ -54,8 +81,15 @@ export const BlockEditor = ({ content, onContentChange }: BlockEditorProps) => {
 			// Debounce the content parsing to avoid excessive re-renders
 			debounceRef.current = setTimeout(
 				() => {
-					const parsedBlocks = parseMarkdownBlocks(content);
-					setBlocks(parsedBlocks);
+					const parsedBlocks = parseMarkdownBlocks(
+						content,
+						currentSettings
+					);
+					const nestedBlocks = createNestedBlocks(
+						parsedBlocks,
+						currentSettings
+					);
+					setBlocks(nestedBlocks);
 					setLastContent(content);
 				},
 				lastContent === "" ? 0 : DEBOUNCE_DELAYS.CONTENT_PARSING
@@ -75,18 +109,33 @@ export const BlockEditor = ({ content, onContentChange }: BlockEditorProps) => {
 
 		if (active.id !== over?.id) {
 			setBlocks((items) => {
-				const oldIndex = items.findIndex(
+				// For nested blocks, we need to flatten first, then reorder, then restructure
+				const flatBlocks = currentSettings.enableNestedBlocks
+					? flattenNestedBlocks(items)
+					: items;
+
+				const oldIndex = flatBlocks.findIndex(
 					(item) => item.id === active.id
 				);
-				const newIndex = items.findIndex(
+				const newIndex = flatBlocks.findIndex(
 					(item) => item.id === over?.id
 				);
 
-				const newBlocks = arrayMove(items, oldIndex, newIndex);
-				const newContent = blocksToMarkdown(newBlocks, content);
+				const reorderedBlocks = arrayMove(
+					flatBlocks,
+					oldIndex,
+					newIndex
+				);
+
+				// Reconstruct nested structure if enabled
+				const finalBlocks = currentSettings.enableNestedBlocks
+					? createNestedBlocks(reorderedBlocks, currentSettings)
+					: reorderedBlocks;
+
+				const newContent = blocksToMarkdown(reorderedBlocks, content);
 				onContentChange(newContent);
 
-				return newBlocks;
+				return finalBlocks;
 			});
 		}
 	};
@@ -126,6 +175,51 @@ export const BlockEditor = ({ content, onContentChange }: BlockEditorProps) => {
 		);
 	};
 
+	const renderDraggableBlock = (block: MarkdownBlock) => {
+		if (block.isDraggable === false) {
+			// Non-draggable blocks are rendered without drag functionality
+			return (
+				<div key={block.id} className="bloxt-non-draggable">
+					{renderBlock(block)}
+				</div>
+			);
+		}
+
+		return (
+			<DraggableBlock key={block.id} block={block}>
+				{renderBlock(block)}
+			</DraggableBlock>
+		);
+	};
+
+	// Get all draggable block IDs (including nested ones)
+	// Flatten blocks for display while maintaining visual hierarchy info
+	const flattenBlocksForDisplay = (
+		blocks: MarkdownBlock[],
+		level = 0
+	): MarkdownBlock[] => {
+		const flattened: MarkdownBlock[] = [];
+
+		for (const block of blocks) {
+			// Add visual hierarchy level to the block
+			const displayBlock = { ...block, displayLevel: level };
+			flattened.push(displayBlock);
+
+			// Add children at the next level
+			if (block.children && block.children.length > 0) {
+				flattened.push(
+					...flattenBlocksForDisplay(block.children, level + 1)
+				);
+			}
+		}
+
+		return flattened;
+	};
+
+	const displayBlocks = currentSettings.enableNestedBlocks
+		? flattenBlocksForDisplay(blocks)
+		: blocks;
+
 	return (
 		<DndContext
 			sensors={sensors}
@@ -133,20 +227,36 @@ export const BlockEditor = ({ content, onContentChange }: BlockEditorProps) => {
 			onDragEnd={handleDragEnd}
 		>
 			<SortableContext
-				items={blocks.map((b) => b.id)}
+				items={displayBlocks
+					.filter((b) => b.isDraggable !== false)
+					.map((b) => b.id)}
 				strategy={verticalListSortingStrategy}
 			>
 				<div className="bloxt-editor">
-					{blocks.length === 0 ? (
+					{displayBlocks.length === 0 ? (
 						<div className="bloxt-no-blocks">
 							No blocks found. Try adding some headers or
 							paragraphs to your document.
 						</div>
 					) : (
-						blocks.map((block) => (
-							<DraggableBlock key={block.id} block={block}>
-								{renderBlock(block)}
-							</DraggableBlock>
+						displayBlocks.map((block) => (
+							<div
+								key={block.id}
+								style={{
+									marginLeft: `${
+										(block.displayLevel || 0) * 20
+									}px`,
+									opacity:
+										(block.displayLevel || 0) > 0 ? 0.9 : 1,
+								}}
+								className={`bloxt-display-block ${
+									(block.displayLevel || 0) > 0
+										? "bloxt-nested-display"
+										: ""
+								}`}
+							>
+								{renderDraggableBlock(block)}
+							</div>
 						))
 					)}
 				</div>

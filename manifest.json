@@ -1,7 +1,7 @@
 {
 	"id": "bloxt",
 	"name": "Bloxt - Drag & drop document blocks in Obsidian.",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"minAppVersion": "0.15.0",
 	"description": "Reorganize notes spatially like puzzle pieces while preserving standard Markdown - perfect for non-linear thinkers and structure enthusiasts.",
 	"author": "Obsidian",
